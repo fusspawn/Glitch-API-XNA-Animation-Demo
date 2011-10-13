@@ -1,0 +1,7 @@
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\obj\x86\Debug\Glitch Anim Viewer.csprojResolveAssemblyReference.cache
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\downloads\empty.xml
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Glitch Anim Viewer.exe
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Glitch Anim Viewer.pdb
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\obj\x86\Debug\Glitch Anim Viewer.exe
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\obj\x86\Debug\Glitch Anim Viewer.pdb
