@@ -71,12 +71,9 @@ namespace Glitch_Anim_Viewer
             int frame_index = 0;
             for (int x = 0; x < cols; x++) {
                 for (int y = 0; y < rows; y++) {
-                    Console.WriteLine("Frame_Index = {0} FrameKey = {1}", frame_index, Frames[frame_index]);
-
                     // No Point Loading the Same Frame Twice 
                     // TODO: this may not be needed. I think i had a bug here that required this i later fixed
                     if(!FrameRects.ContainsKey(Frames[frame_index])) {
-                        Console.WriteLine("Adding Frame: {0} to Anim: {1}", Frames[frame_index], SheetName);
                         FrameRects.Add(
                             Frames[frame_index], 
                             new Rectangle(
@@ -84,7 +81,7 @@ namespace Glitch_Anim_Viewer
                                     y * (Image.Height / rows),
                                     Image.Width / cols,
                                     Image.Height / rows
-                        ));
+                        )); // Calculate where in the sheet this frame lives
                     }
 
                     frame_index++;

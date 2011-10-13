@@ -5,3 +5,7 @@ C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitc
 C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Glitch Anim Viewer.pdb
 C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\obj\x86\Debug\Glitch Anim Viewer.exe
 C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\obj\x86\Debug\Glitch Anim Viewer.pdb
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Content\groddle.xnb
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Content\DefaultFont.xnb
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Content\log.xnb
+C:\Users\Fusspawn\Documents\Visual Studio 2010\Projects\Glitch Anim Viewer\Glitch Anim Viewer\Glitch Anim Viewer\bin\x86\Debug\Content\debugtex.xnb

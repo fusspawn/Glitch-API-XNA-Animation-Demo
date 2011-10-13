@@ -20,9 +20,21 @@ namespace Glitch_Anim_Viewer
                 if (AnimationSheets.Count == 0) // if we havent got any animations registered yet. we havent loaded anything
                     return false;
 
-                return ((from p in AnimationSheets where p.Value.IsLoaded == true select p).ToList().Count == AnimationSheets.Count); // Check that every animation sheet we requested has finished downloading
+                var loaded = ((from p in AnimationSheets where p.Value.IsLoaded == true select p).ToList().Count == AnimationSheets.Count); // Check that every animation sheet we requested has finished downloading
+                if (loaded && Game1.CurrentGameState == GamePlayState.Loading)
+                    Game1.CurrentGameState = GamePlayState.Starting;
+                return loaded;
             }
             set {} // private set 
+        }
+        public Vector2 Location = Vector2.Zero; // location to draw at
+        public Rectangle BoundingBox = Rectangle.Empty;
+        public Rectangle FootBoundingBox {
+            get
+            {
+                return
+                    new Rectangle(BoundingBox.X + (BoundingBox.Width / 2) - 15, BoundingBox.Y + BoundingBox.Height - 20, 30, 20);
+            }
         }
 
         private readonly string MethodURL = "http://api.glitch.com/simple/players.getAnimations?player_tsid="; //The url we use to grab animation data
@@ -32,7 +44,6 @@ namespace Glitch_Anim_Viewer
         private string Tsid; // the player id we are displaying
         private GraphicsDevice Device; // graphic device to use
         private SpriteBatch Batch; // the spritebatch to use
-        private Vector2 Location = Vector2.Zero; // location to draw at
 
         private string CurrentAnim = null; // the name of the animation we wish to display
         private int CurrentFrameIndex = 0; // the current frame we are displaying
@@ -199,6 +210,9 @@ namespace Glitch_Anim_Viewer
         /// </summary>
         /// <param name="Time"> Time info </param>
         public void Update(GameTime Time) {
+            if (!IsLoaded)
+                return;
+            
             if (CurrentAnim == null) // if we dont have an animation selected theres no point doing anything
                 return;
 
@@ -210,7 +224,6 @@ namespace Glitch_Anim_Viewer
 
                 if (CurrentFrameIndex >= Animations[CurrentAnim].frames.Count() - 1) { // if the animation is finished. lets just pick another one at random
                     CurrentFrameIndex = 0;
-                    SetAnimation(PickRandomAnimation());
                 }
 
                 msLastFrameUpdate = 0; // Reset how long we have shown the current frame
@@ -227,7 +240,7 @@ namespace Glitch_Anim_Viewer
             }
 
             if (CurrentAnim == null) { // we are loaded but havent got an animation yet. lets pick one.
-                SetAnimation(PickRandomAnimation());
+                SetAnimation("idle1");
             }
 
             
@@ -247,6 +260,8 @@ namespace Glitch_Anim_Viewer
             Rectangle ImageRect = new Rectangle((int)Location.X, (int)Location.Y, 
                 Sheet.FrameRects[anim.frames[CurrentFrameIndex]].Width,
                Sheet.FrameRects[anim.frames[CurrentFrameIndex]].Height);
+
+            BoundingBox = ImageRect;
 
             Batch.Begin();
             Batch.Draw(Sheet.Image, ImageRect, Sheet.FrameRects[anim.frames[CurrentFrameIndex]], Color.White); // Draw the current frame to the screen. we get the frame from the sheet.
