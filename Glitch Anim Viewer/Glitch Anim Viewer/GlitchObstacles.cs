@@ -13,6 +13,8 @@ namespace Glitch_Anim_Viewer
         public int XOffset = 0;
         public Texture2D ObstacleTex;
         public SpriteBatch SpriteBatch;
+        public GraphicsDevice Device;
+        public Color[] PerPixelCollisionData;
 
         public Rectangle BoundingBox {
             get {
@@ -25,20 +27,17 @@ namespace Glitch_Anim_Viewer
             }
         }
 
-        public GraphicsDevice Device;
-
-
         public GlitchObstacle(Texture2D Tex, GraphicsDevice Dev) {
             ObstacleTex = Tex;
             Device = Dev;
             SpriteBatch = new SpriteBatch(Dev);
             ScreenLoc = new Vector2(
                 Device.Viewport.Width + ObstacleTex.Width,
-                Device.Viewport.Height - 135
+                Device.Viewport.Height - 155
             );
+            PerPixelCollisionData = new Color[ObstacleTex.Width * ObstacleTex.Height];
+            ObstacleTex.GetData<Color>(PerPixelCollisionData);
         }
-
-
 
         public void Update(GameTime Time, int CurrentScrollSpeed) {
             ScreenLoc.X -= (float)Time.ElapsedGameTime.TotalSeconds * CurrentScrollSpeed;  

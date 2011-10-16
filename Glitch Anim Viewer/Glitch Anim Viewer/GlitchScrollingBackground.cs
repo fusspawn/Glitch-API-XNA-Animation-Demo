@@ -7,14 +7,14 @@ using Microsoft.Xna.Framework;
 
 namespace Glitch_Anim_Viewer
 {
-    public class ScrollingBackground
+    public class GlitchScrollingBackground
     {
         public Texture2D bgTex;
         public Vector2 ScreenPos, Origin = Vector2.Zero;
         private GraphicsDevice Device;
         private SpriteBatch Batch;
 
-        public ScrollingBackground(Texture2D Texture, GraphicsDevice Dev) {
+        public GlitchScrollingBackground(Texture2D Texture, GraphicsDevice Dev) {
             bgTex = Texture;
             Device = Dev;
             ScreenPos = new Vector2(0, 0);

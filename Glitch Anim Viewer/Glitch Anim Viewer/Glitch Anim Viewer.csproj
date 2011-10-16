@@ -17,8 +17,8 @@
     <XnaProfile>HiDef</XnaProfile>
     <XnaCrossPlatformGroupID>76f79c3f-8a52-46ff-8bf5-e8d93e304ff1</XnaCrossPlatformGroupID>
     <XnaOutputType>Game</XnaOutputType>
-    <ApplicationIcon>Game.ico</ApplicationIcon>
-    <Thumbnail>GameThumbnail.png</Thumbnail>
+    <ApplicationIcon>downloads\Game.ico</ApplicationIcon>
+    <Thumbnail>downloads\GameThumbnail.png</Thumbnail>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -61,7 +61,7 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>Glitch_Anim_Viewer.Program</StartupObject>
+    <StartupObject>Glitch_Anim_Viewer.EntryPoint</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -82,18 +82,21 @@
     <Compile Include="GlitchAnimation.cs" />
     <Compile Include="GlitchAnimationSheet.cs" />
     <Compile Include="GlitchCharacter.cs" />
-    <Compile Include="PlayerControlledGlitch.cs" />
+    <Compile Include="Particles\Particle.cs" />
+    <Compile Include="Particles\ParticleManager.cs" />
+    <Compile Include="Particles\ScrollingParticle.cs" />
+    <Compile Include="GlitchPlayerController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Game1.cs" />
-    <Compile Include="ScrollingBackground.cs" />
+    <Compile Include="EntryPoint.cs" />
+    <Compile Include="GlitchRunnerGame.cs" />
+    <Compile Include="GlitchScrollingBackground.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="downloads\empty.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Game.ico" />
-    <Content Include="GameThumbnail.png">
+    <Content Include="downloads\Game.ico" />
+    <Content Include="downloads\GameThumbnail.png">
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
     </Content>
   </ItemGroup>

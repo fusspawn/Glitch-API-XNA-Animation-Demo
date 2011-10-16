@@ -21,8 +21,8 @@ namespace Glitch_Anim_Viewer
                     return false;
 
                 var loaded = ((from p in AnimationSheets where p.Value.IsLoaded == true select p).ToList().Count == AnimationSheets.Count); // Check that every animation sheet we requested has finished downloading
-                if (loaded && Game1.CurrentGameState == GamePlayState.Loading)
-                    Game1.CurrentGameState = GamePlayState.Starting;
+                if (loaded && GlitchRunnerGame.CurrentGameState == GamePlayState.Loading)
+                    GlitchRunnerGame.CurrentGameState = GamePlayState.Starting;
                 return loaded;
             }
             set {} // private set 
@@ -36,6 +36,7 @@ namespace Glitch_Anim_Viewer
                     new Rectangle(BoundingBox.X + (BoundingBox.Width / 2) - 15, BoundingBox.Y + BoundingBox.Height - 20, 30, 20);
             }
         }
+        public int CurrentFrameID = 0;
 
         private readonly string MethodURL = "http://api.glitch.com/simple/players.getAnimations?player_tsid="; //The url we use to grab animation data
         private Dictionary<string, GlitchAnimationSheet> AnimationSheets; // List of all the animation sheets we have
@@ -45,10 +46,10 @@ namespace Glitch_Anim_Viewer
         private GraphicsDevice Device; // graphic device to use
         private SpriteBatch Batch; // the spritebatch to use
 
+
         private string CurrentAnim = null; // the name of the animation we wish to display
         private int CurrentFrameIndex = 0; // the current frame we are displaying
         private int PlaybackRate = 30; // glitch animations run at 30fps 
-
         private int msLastFrameUpdate = 0; // How Long scince we last updated the animation
         
         /// <summary>
@@ -89,20 +90,15 @@ namespace Glitch_Anim_Viewer
             // Serialize the api response string into an object
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             object response = serializer.DeserializeObject(raw_data);
-
             Console.WriteLine("Animation Data Deserialized");
 
             if (response.GetType().Equals(typeof(Dictionary<String, Object>)))
             {
-                if (response.GetType().Equals(typeof(Dictionary<String, Object>)))
-                {
                     Console.WriteLine("Animation Data Okay!");
                     // Cast to a dictionary
                     Dictionary<String, Object> responseDict = response as Dictionary<String, Object>;
-
                     // Declare ok object
                     object ok;
-
                     // Attempt to get the ok value
                     if (responseDict.TryGetValue("ok", out ok))
                     {
@@ -126,19 +122,21 @@ namespace Glitch_Anim_Viewer
                         // No ok value? Ooops bail.
                         throw new Exception("Glitch API Error: No Ok Value in Response");
                     }
-                }
-            }
+           }
         }
+        
+        /// <summary>
+        ///  Callback to parse and load all the animation data
+        /// </summary>
+        /// <param name="responseDict"> animation data payload from the glitch api </param>
         private void On_AnimationDataLoaded(Dictionary<string, object> responseDict)
         {
             // Get hold of the info about the animation sheets
             Dictionary<string, object> Sheets = responseDict["sheets"] as Dictionary<string, object>;
-
             foreach (KeyValuePair<string, object> Sheet in Sheets) {
                 Dictionary<string, object> Sheetdata = Sheet.Value as Dictionary<string, object>; // this is the sheet data
                 Console.WriteLine("SpriteSheet: {0} Url: {1}", Sheet.Key, Sheetdata["url"]);
                 
-
                 // convert object[] of frames to int[]
                 int[] frames = new int[(Sheetdata["frames"] as object[]).Length + 1];
                 int i = 0;
@@ -146,7 +144,6 @@ namespace Glitch_Anim_Viewer
                     frames[i] = frame_index;
                     i++;
                 }
-
 
                 // Create an AnimationSheet from the data. Sheet.Key is the SheetName
                 AnimationSheets[Sheet.Key] = new GlitchAnimationSheet(Sheet.Key, 
@@ -160,7 +157,6 @@ namespace Glitch_Anim_Viewer
             // Loop over the animation data and load info about the frames
             Dictionary<string, object> AnimationData = responseDict["anims"] as Dictionary<string, object>;
             foreach (KeyValuePair<string, object> anim in AnimationData) {
-
                 // convert frame object[] to int[]
                 int[] frame_keys = new int[(anim.Value as object[]).Length];
                 int i = 0;
@@ -176,6 +172,7 @@ namespace Glitch_Anim_Viewer
                 });
             }
         }
+        
         /// <summary>
         ///  Set the currently playing animation name
         /// </summary>
@@ -217,15 +214,11 @@ namespace Glitch_Anim_Viewer
                 return;
 
             msLastFrameUpdate += Time.ElapsedGameTime.Milliseconds; // update the time scince the last update
-            
             if (msLastFrameUpdate > (1000 / PlaybackRate)) { // if we have shown the current frame for long enough
-                
                 CurrentFrameIndex++; // Update the frame we are showing
-
                 if (CurrentFrameIndex >= Animations[CurrentAnim].frames.Count() - 1) { // if the animation is finished. lets just pick another one at random
                     CurrentFrameIndex = 0;
                 }
-
                 msLastFrameUpdate = 0; // Reset how long we have shown the current frame
             }
         }
@@ -253,6 +246,9 @@ namespace Glitch_Anim_Viewer
                 return;
             }
 
+            CurrentFrameID = anim.frames[CurrentFrameIndex];
+            
+            
             // Find the sheet that holds the animation we want
             GlitchAnimationSheet Sheet = FindSheetWithFrame(anim.frames[CurrentFrameIndex]);
 
@@ -261,6 +257,7 @@ namespace Glitch_Anim_Viewer
                 Sheet.FrameRects[anim.frames[CurrentFrameIndex]].Width,
                Sheet.FrameRects[anim.frames[CurrentFrameIndex]].Height);
 
+            // Set the characters bounding box to that of the current display rect
             BoundingBox = ImageRect;
 
             Batch.Begin();

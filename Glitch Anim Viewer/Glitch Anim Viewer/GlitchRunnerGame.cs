@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Glitch_Anim_Viewer.Particles;
 
 namespace Glitch_Anim_Viewer
 {
@@ -22,28 +23,32 @@ namespace Glitch_Anim_Viewer
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class GlitchRunnerGame : Microsoft.Xna.Framework.Game
     {
         List<GlitchObstacle> Obstacles;
         SpriteFont DefaultFont;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        PlayerControlledGlitch Character; // Character we wish to display
-        ScrollingBackground Background;
+        GlitchPlayerController Character; // Character we wish to display
+        GlitchScrollingBackground Background;
         KeyboardState StaleState;
         Texture2D bgTex;
-        Texture2D DebugTex;
-        int CurrentScrollSpeed = 0;
+        Vector2 DropShadowOffset = new Vector2(2, 2);
+        int StartingScrollSpeed = 175;
+        public static int CurrentScrollSpeed = 175;
         int LastSpeedIncrease = 0;
         int Score = 0;
         public static GamePlayState CurrentGameState;
+        public static ContentManager ContentManager;
+        public static ParticleManager ParticleManager;
 
-        public Game1()
+        public GlitchRunnerGame()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferHeight = 768;
             graphics.PreferredBackBufferWidth = 1024;
             graphics.ApplyChanges();
+            GlitchRunnerGame.ContentManager = Content;
             Content.RootDirectory = "Content";
             CurrentGameState = GamePlayState.Loading;
         }
@@ -69,11 +74,11 @@ namespace Glitch_Anim_Viewer
             // Kick of the Character Loading
             Obstacles = new List<GlitchObstacle>();
             DefaultFont = Content.Load<SpriteFont>("DefaultFont");
-            Character = new PlayerControlledGlitch("PHV2HON5BG82O1J", GraphicsDevice); // I use my TSID here. Change this to Yours
-            Background = new ScrollingBackground(bgTex, GraphicsDevice);
-            DebugTex = Content.Load<Texture2D>("debugtex");
+            Character = new GlitchPlayerController("PHV2HON5BG82O1J", GraphicsDevice); // I use my TSID here. Change this to Yours
+            Background = new GlitchScrollingBackground(bgTex, GraphicsDevice);
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            ParticleManager = new ParticleManager(GraphicsDevice);
         }
 
         /// <summary>
@@ -102,7 +107,7 @@ namespace Glitch_Anim_Viewer
                     if (Keyboard.GetState().IsKeyDown(Keys.Space) && !StaleState.IsKeyDown(Keys.Space))
                     {
                         CurrentGameState = GamePlayState.Playing;
-                        CurrentScrollSpeed = 150;
+                        CurrentScrollSpeed = StartingScrollSpeed;
                         Character.Character.Location.Y = GraphicsDevice.Viewport.Height - 250;
                         Character.Character.SetAnimation("walk1x");
                         Character.CurrentState = PlayerMoveState.Walking;
@@ -119,13 +124,14 @@ namespace Glitch_Anim_Viewer
 
                     if (LastSpeedIncrease > 1000)
                     {
-                        CurrentScrollSpeed += 20;
+                        CurrentScrollSpeed += 30;
                         LastSpeedIncrease = 0;
                         Score += 1;
                     }
 
                     Background.Update(gameTime, CurrentScrollSpeed);
                     Character.Update(gameTime); // Update the Character
+                    ParticleManager.Update(gameTime);
                     UpdateGameCollsions(gameTime);
                     UpdateGameObjects(gameTime);
                     return;
@@ -133,12 +139,13 @@ namespace Glitch_Anim_Viewer
 
                 if (CurrentGameState == GamePlayState.Died)
                 {
-                    
-                    if (Keyboard.GetState().IsKeyDown(Keys.Space) && !StaleState.IsKeyDown(Keys.Space))
+
+                    if (Keyboard.GetState().IsKeyDown(Keys.Enter) && !StaleState.IsKeyDown(Keys.Enter))
                     {
                         Character.CurrentState = PlayerMoveState.Dead;
                         CurrentGameState = GamePlayState.Starting;
-                        CurrentScrollSpeed = 50;
+                        CurrentScrollSpeed = StartingScrollSpeed;
+
                     }
 
                     return;
@@ -154,6 +161,7 @@ namespace Glitch_Anim_Viewer
             if (LastSpawnDelay > SpawnDelay) { 
                 Obstacles.Add(new GlitchObstacle(Content.Load<Texture2D>("log"), GraphicsDevice));
                 LastSpawnDelay = 0;
+                SpawnDelay = new Random().Next(1000, 3000);
             }
         }
         private void UpdateGameCollsions(GameTime gameTime)
@@ -163,10 +171,14 @@ namespace Glitch_Anim_Viewer
                 if (ob.BoundingBox.X + ob.ObstacleTex.Width <= 0) //offscreen?
                     Obstacles.Remove(ob); // Remove old Obstacles
 
-                if (ob.BoundingBox.Intersects(Character.Character.FootBoundingBox))
+                if (IntersectPixels(Character.Character.BoundingBox, 
+                    Character.Character.FindSheetWithFrame(Character.Character.CurrentFrameID).PerPixelCollisionInfo[Character.Character.CurrentFrameID],
+                    ob.BoundingBox, 
+                    ob.PerPixelCollisionData))
                 {// We hit the obstacle
                     CurrentGameState = GamePlayState.Died;
                     Character.Character.SetAnimation("hit1");
+                    Character.CurrentState = PlayerMoveState.Dead;
                 }
 
                 ob.Update(gameTime, CurrentScrollSpeed);
@@ -181,6 +193,7 @@ namespace Glitch_Anim_Viewer
             GraphicsDevice.Clear(Color.CornflowerBlue); // Clear the screen
             Background.Draw(gameTime); // Draw the background
             Character.Draw(gameTime); // Draw the Character
+            ParticleManager.Draw(gameTime);
             spriteBatch.Begin();
             
             foreach (GlitchObstacle Ob in Obstacles) {
@@ -189,29 +202,76 @@ namespace Glitch_Anim_Viewer
             
             if (CurrentGameState == GamePlayState.Loading) {
                 spriteBatch.DrawString(DefaultFont, "Loading Character..", new Vector2(
-                    -(DefaultFont.MeasureString("Loading Character..").X / 2) - GraphicsDevice.Viewport.Width / 2, 200)
-                    ,Color.White);
+                    -(DefaultFont.MeasureString("Loading Character..").X / 2) + GraphicsDevice.Viewport.Width / 2, 200)
+                    ,Color.Black);
+
+
+                spriteBatch.DrawString(DefaultFont, "Loading Character..", new Vector2(
+                    -(DefaultFont.MeasureString("Loading Character..").X / 2) + GraphicsDevice.Viewport.Width / 2, 200) + DropShadowOffset
+                    , Color.White);
             }
 
             if (CurrentGameState == GamePlayState.Starting) {
                 spriteBatch.DrawString(DefaultFont, "Press Jump (Space) \n to Start", new Vector2(
                     -(DefaultFont.MeasureString("Press Jump (Space) \n to Start").X / 2) + GraphicsDevice.Viewport.Width / 2, 200)
+                    , Color.Black);
+
+                spriteBatch.DrawString(DefaultFont, "Press Jump (Space) \n to Start", new Vector2(
+                    -(DefaultFont.MeasureString("Press Jump (Space) \n to Start").X / 2) + GraphicsDevice.Viewport.Width / 2, 200) + DropShadowOffset
                     , Color.White);
             }
 
             if (CurrentGameState == GamePlayState.Died) {
                 spriteBatch.DrawString(DefaultFont, "You died!. Press Space to Restart \n Score: " + Score, new Vector2(
-                   -(DefaultFont.MeasureString("You died!. Press Space to Restart \n Score: " + Score).X / 2) - GraphicsDevice.Viewport.Width / 2, 200)
-                    , Color.White);
+                    (GraphicsDevice.Viewport.Width / 2) - (DefaultFont.MeasureString("You died!. Press Space to Restart \n Score: " + Score).X / 2) 
+                    , 200)
+                    , Color.Black);
+
+                spriteBatch.DrawString(DefaultFont, "You died!. Press Space to Restart \n Score: " + Score, new Vector2(
+                  (GraphicsDevice.Viewport.Width / 2) - (DefaultFont.MeasureString("You died!. Press Space to Restart \n Score: " + Score).X / 2)
+                  , 200) + DropShadowOffset
+                  , Color.White);
             }
 
             if (CurrentGameState == GamePlayState.Playing) {
-                spriteBatch.DrawString(DefaultFont, "Score: " + Score, Vector2.Zero, Color.White);
+                spriteBatch.DrawString(DefaultFont, "Score: " + Score, Vector2.Zero, Color.Black);
+                spriteBatch.DrawString(DefaultFont, "Score: " + Score, Vector2.Zero + DropShadowOffset, Color.White);
             }
 
-            spriteBatch.DrawString(DefaultFont, "State: " + CurrentGameState.ToString(), new Vector2(0, 20), Color.White); // Debug
             spriteBatch.End();
             base.Draw(gameTime);
+        }
+        static bool IntersectPixels(Rectangle rectangleA, Color[] dataA,
+                                    Rectangle rectangleB, Color[] dataB)
+        {
+            // Find the bounds of the rectangle intersection
+            int top = Math.Max(rectangleA.Top, rectangleB.Top);
+            int bottom = Math.Min(rectangleA.Bottom, rectangleB.Bottom);
+            int left = Math.Max(rectangleA.Left, rectangleB.Left);
+            int right = Math.Min(rectangleA.Right, rectangleB.Right);
+
+            // Check every point within the intersection bounds
+            for (int y = top; y < bottom; y++)
+            {
+                for (int x = left; x < right; x++)
+                {
+                    // Get the color of both pixels at this point
+                    Color colorA = dataA[(x - rectangleA.Left) +
+                                         (y - rectangleA.Top) * rectangleA.Width];
+                    Color colorB = dataB[(x - rectangleB.Left) +
+                                         (y - rectangleB.Top) * rectangleB.Width];
+
+                    // If both pixels are not completely transparent,
+                    if (colorA.A != 0 && colorB.A != 0)
+                    {
+                        // then an intersection has been found
+                        return true;
+                    }
+                }
+            }
+
+            // No intersection found
+            return false;
         }
     }
 }

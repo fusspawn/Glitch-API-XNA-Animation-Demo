@@ -14,6 +14,7 @@ namespace Glitch_Anim_Viewer
         ///  Name of Animation
         /// </summary>
         public string anim_name = "";
+
         /// <summary>
         ///  FrameID's for the Animation.
         /// </summary>
