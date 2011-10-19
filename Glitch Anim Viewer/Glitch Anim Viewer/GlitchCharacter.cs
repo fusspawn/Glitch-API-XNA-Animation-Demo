@@ -57,7 +57,7 @@ namespace Glitch_Anim_Viewer
         /// </summary>
         /// <param name="TSID"> TinySpeck ID of the player </param>
         /// <param name="Dev"> Graphics Device to use during Rendering </param>
-        public GlitchCharacter(string TSID, GraphicsDevice Dev) {
+        public  GlitchCharacter(string TSID, GraphicsDevice Dev) {
             Tsid = TSID;
             AnimationSheets = new Dictionary<string, GlitchAnimationSheet>();
             Animations = new Dictionary<string, GlitchAnimation>();

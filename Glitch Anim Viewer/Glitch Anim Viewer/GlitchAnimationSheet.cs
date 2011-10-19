@@ -53,7 +53,7 @@ namespace Glitch_Anim_Viewer
         {
             Console.WriteLine("Download Image From Url: {0}", Url);
             WebClient Client = new WebClient();
-            Client.DownloadFileCompleted += new System.ComponentModel.AsyncCompletedEventHandler(Client_DownloadFileCompleted);
+            Client.DownloadFileCompleted += new System.ComponentModel.AsyncCompletedEventHandler(Client_DownloadFileCompleted); // This is called when the download is complete
             Client.DownloadFileAsync(new Uri(Url), "./downloads/" + PlayerTSID + SheetName + ".png"); // We save the image to the ./download/ folder with the following format.  PlayerTSID followed by the SheetName and finally the .png suffix
         }
 
